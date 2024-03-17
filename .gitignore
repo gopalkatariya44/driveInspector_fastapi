@@ -1,0 +1,34 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+env/
+bin/
+lib/
+pip-wheel-metadata/
+share/
+
+# Test files
+*.log
+*.txt
+*.db
+
+# IDE / editor files
+.idea/
+.vscode/
+
+# Documentation
+docs/_build/
+
+# FastAPI specific
+.env
+
+venv
