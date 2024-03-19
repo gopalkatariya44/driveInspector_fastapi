@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+import logging
 
 from api.api_v1.router import api_v1_router
 from core.config import settings
@@ -18,6 +19,11 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
+)
+
+logging.basicConfig(
+    level=logging.INFO,  # Set the logging level to INFO or any other desired level
+    format='%(asctime)s - %(levelname)s - %(message)s'  # Specify the logging format
 )
 
 app.include_router(api_v1_router)

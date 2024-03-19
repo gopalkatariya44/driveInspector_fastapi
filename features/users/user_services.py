@@ -30,20 +30,12 @@ class UserService:
         return token_in
 
     @staticmethod
-    async def authenticate(email: str, password: str) -> Optional[UserModel]:
+    async def authenticate(email: str, password: str):
         user = await UserService.get_user_by_email(email=email)
         if not user:
-            return None
-            # raise HTTPException(
-            #     status_code=status.HTTP_400_BAD_REQUEST,
-            #     detail="User with this email not exist."
-            # )
+            return "email_not_exist"
         if not security.verify_password(password=password, hashed_password=user.hashed_password):
-            return None
-            # raise HTTPException(
-            #     status_code=status.HTTP_400_BAD_REQUEST,
-            #     detail="Incorrect password."
-            # )
+            return "incorrect_password"
         return user
 
     @staticmethod

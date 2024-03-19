@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Any, Union
 
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
@@ -17,7 +17,9 @@ password_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/login")
 now = datetime.utcnow()
 
+
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserModel:
+    # token = request.cookies.get('access_token')
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=settings.ALGORITHM)
         token_data = TokenPayload(**payload)
@@ -44,7 +46,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserModel:
     return user
 
 
-async def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> str:
+def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> str:
     if expires_delta is not None:
         expires_delta = now + expires_delta
     else:

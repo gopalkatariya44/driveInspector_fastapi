@@ -25,7 +25,8 @@ router = APIRouter(
 async def create_user(user: CreateUserRequest):
     try:
         data = await UserService.create_user(user)
-        print(f"User Created: {data}")
+        # print(f"User Created: {data}")
+        logging.info(f"User Created: {data}")
         return data
     except (pymongo.errors.DuplicateKeyError, beanie.exceptions.RevisionIdWasChanged):
         raise HTTPException(
@@ -38,20 +39,24 @@ async def create_user(user: CreateUserRequest):
 async def login_for_access_token(response: Response, data: LoginUserRequest):
     # try:
     user = await UserService.authenticate(email=data.email, password=data.password)
-    if user is None:
-        print("hey")
+    if user == "email_not_exist":
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Incorrect email or password"
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="User with this email not exist."
         )
-    # create access amd refresh token
+    elif user == "incorrect_password":
+        print("incorrect_password")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password."
+        )
     tokens = {
         'access_token': create_access_token(user.user_id),
         'refresh_token': create_refresh_token(user.user_id),
         'token_type': 'bearer'
-    }
-    # response.set_cookie(key="access_token", value=tokens['access_token'], httponly=True)
-    # response.set_cookie(key="refresh_token", value=tokens['refresh_token'], httponly=True)
+        }
+    response.set_cookie(key="access_token", value=tokens['access_token'], httponly=True)
+    response.set_cookie(key="refresh_token", value=tokens['refresh_token'], httponly=True)
 
     print(f"access_token: {tokens['access_token']}")
     print(f"refresh_token: {tokens['refresh_token']}")
@@ -68,10 +73,10 @@ async def login_for_access_token(response: Response, data: LoginUserRequest):
 async def logout(token: CreateTokenBlackList, user: dict = Depends(get_current_user)):
     try:
         data = await UserService.add_token_to_black_list(token)
-        print(f"User Logout: {data}")
+        # print(f"User Logout: {data}")
+        logging.info(f"User Logout: {data}")
         return {"message": "Logout successful"}
     except Exception as e:
-        print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Something went wrong"
