@@ -28,6 +28,4 @@ share/
 docs/_build/
 
 # FastAPI specific
-.env
-
 venv
