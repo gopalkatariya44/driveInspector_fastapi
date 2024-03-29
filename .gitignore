@@ -18,7 +18,6 @@ share/
 
 # Test files
 *.log
-*.txt
 *.db
 
 # IDE / editor files
