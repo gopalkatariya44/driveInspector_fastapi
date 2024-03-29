@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container">
+        <div class="card text-center">
+            <div class="card-header">
+                Detected Numberplate's
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Reg No.</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Confidence</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for vehicle in vehicle_details_list %}
+                    <tr class="pointer">
+                        <td>{{loop.index}}</td>
+                        <td>{{vehicle.reg_no}}</td>
+                        <td>{{vehicle.created_at}}</td>
+                        <td>{{vehicle.conf}}</td>
+                        <td>
+<!--                            <button onclick="window.location.href='/v1/vehicle_details/get_image?file_path={{vehicle.img_url}}'"-->
+<!--                                type="button" class="btn btn-info">Image-->
+<!--                            </button>-->
+                            <button onclick="window.location.href='/v1/vehicle_details/details/{{vehicle.id}}'"
+                                    type="button" class="btn btn-info">Vehicle Info
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% if vehicle_details_list|length == 0 %}
+                <p class="card-text">No vehicle detection found!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

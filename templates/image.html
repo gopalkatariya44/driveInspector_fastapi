@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Image{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<!--{{image_path}}<br>-->
+<img src="{{ url_for('get_image_file') }}" alt="Example Image" width="900px">
+
+{% endblock %}

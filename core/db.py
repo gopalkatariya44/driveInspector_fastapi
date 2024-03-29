@@ -6,6 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from core.config import settings
 from features.users.user_models import UserModel, TokenBlackListModel
+from features.vehicle_details.vehicle_details_model import VehicleDetailsModel
 
 
 @asynccontextmanager
@@ -17,6 +18,7 @@ async def app_lifespan(app: FastAPI):
         document_models=[
             UserModel,
             TokenBlackListModel,
+            VehicleDetailsModel
         ]
     )
     print("[START]: Initialize application services")
