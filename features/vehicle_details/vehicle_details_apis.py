@@ -1,17 +1,15 @@
 from bson import ObjectId
-from fastapi import APIRouter, Request
-from starlette.responses import FileResponse, HTMLResponse
-from starlette.templating import Jinja2Templates
+from fastapi import APIRouter, Request, status
+from starlette.responses import FileResponse, HTMLResponse, RedirectResponse
 
+from core.config import settings
+from core.security import get_current_user
+from features import templates
 from features.vehicle_details.vehicle_details_services import VehicleDetailsServices
 
 router = APIRouter(
-    prefix='/vehicle_details',
     tags=['Vehicle Details']
 )
-
-templates = Jinja2Templates(directory='templates')
-img = ''
 
 
 @router.get('/list')
@@ -22,12 +20,17 @@ async def vehicle_list(page: int = 1, limit: int = 100):
 
 @router.get('/', response_class=HTMLResponse)
 async def vehicle_list(request: Request, page: int = 1, limit: int = 100):
-    vehicle_details_list = await VehicleDetailsServices.get_list(page, limit)
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
+    vehicle_details_list = await VehicleDetailsServices.get_list(user.user_id, page, limit)
     return templates.TemplateResponse(
         'home.html',
         {
-            'request': request,
-            'vehicle_details_list': vehicle_details_list
+            "request": request,
+            'vehicle_details_list': vehicle_details_list,
+            'user_id': user.user_id,
+            'ai_service_url': settings.AI_SERVICE_URL
         }
     )
 
@@ -37,7 +40,7 @@ async def getfile(request: Request, file_path: str):
     global img
     img = file_path
     return templates.TemplateResponse(
-        'image.html',
+        'vehicle_details/image.html',
         {
             'request': request,
             'image_path': file_path
@@ -45,21 +48,17 @@ async def getfile(request: Request, file_path: str):
     )
 
 
-@router.get("/image", response_class=FileResponse)
-async def get_image_file():
-    global img
-    return img.replace("../driveinspector_aicode/", "")
-
-
 @router.get('/details/{id}', response_class=HTMLResponse)
 async def vehicle_list(id: str, request: Request):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
     global img
     user_id = ObjectId(id)
     vehicle_details = dict(await VehicleDetailsServices.get_one(user_id))
-    print(vehicle_details)
-    img = vehicle_details['img_url'].replace("../driveinspector_aicode/", "")
+    vehicle_details['img_url'] = vehicle_details['img_url'].replace("../driveinspector_fastapi", "")
     return templates.TemplateResponse(
-        'vehicle_details.html',
+        'vehicle_details/vehicle_details.html',
         {
             'request': request,
             'vehicle_details': vehicle_details

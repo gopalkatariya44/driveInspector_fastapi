@@ -33,9 +33,9 @@ class UserService:
     async def authenticate(email: str, password: str):
         user = await UserService.get_user_by_email(email=email)
         if not user:
-            return "email_not_exist"
+            return False
         if not security.verify_password(password=password, hashed_password=user.hashed_password):
-            return "incorrect_password"
+            return False
         return user
 
     @staticmethod

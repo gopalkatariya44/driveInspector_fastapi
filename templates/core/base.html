@@ -12,7 +12,6 @@
     {% endblock %}
 </head>
 <body>
-{% include 'navbar.html' %}
 <div id="content">{% block content %}{% endblock %}</div>
 <div id="footer">
     {% block footer %}{% endblock %}
@@ -22,8 +21,9 @@
 const start_service = document.getElementById('start-service');
 const stop_service = document.getElementById('stop-service');
 
+
 start_service.addEventListener('click', function () {
-    fetch('http://0.0.0.0:8000/v1/drive-inspector/start')
+    fetch('{{ai_service_url}}/v1/drive-inspector/start/{{user_id}}')
         .then(function (result) {
             console.log(result);
         })
@@ -33,7 +33,7 @@ start_service.addEventListener('click', function () {
     updateDotColor();
 });
 stop_service.addEventListener('click', function () {
-    fetch('http://0.0.0.0:8000/v1/drive-inspector/stop')
+    fetch('{{ai_service_url}}/v1/drive-inspector/stop')
         .then(function (result) {
             console.log(result);
         })
@@ -45,7 +45,7 @@ stop_service.addEventListener('click', function () {
 
 async function updateDotColor() {
     try {
-        const response = await fetch('http://0.0.0.0:8000/v1/drive-inspector/status');
+        const response = await fetch('{{ai_service_url}}/v1/drive-inspector/status');
         const data = await response.json();
         const statusDot = document.getElementById('statusDot');
         if (data.status === true) {

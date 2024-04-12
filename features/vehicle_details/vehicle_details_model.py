@@ -1,11 +1,11 @@
 from datetime import datetime
+from uuid import UUID
 
-from beanie import before_event, Insert, Replace, Document
+from beanie import before_event, Insert, Replace, Document, Link
 from pydantic import Field
 
 
 class VehicleDetailsModel(Document):
-    # user_id: UUID = Field(default_factory=uuid4, unique=True)
     reg_no: str
     img_url: str
     cord: list
@@ -13,6 +13,8 @@ class VehicleDetailsModel(Document):
     conf: float
     puc: bool
     insurance: bool
+
+    user_id: UUID
 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

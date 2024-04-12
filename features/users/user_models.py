@@ -8,12 +8,8 @@ from pydantic import Field, EmailStr
 
 class UserModel(Document):
     user_id: UUID = Field(default_factory=uuid4, unique=True)
-    # email: str
     email: Indexed(EmailStr, unique=True)
     hashed_password: str
-    full_name: Optional[str] = None
-    otp_secret: Optional[str] = None
-    is_active: Optional[bool] = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

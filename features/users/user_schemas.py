@@ -7,8 +7,6 @@ from uuid import UUID
 class CreateUserRequest(BaseModel):
     email: EmailStr = Field(..., description='user email')
     password: str = Field(..., min_length=6, max_length=24, description="user password")
-    # full_name: str = None
-    # phone_number: str = None
     # created_at: datetime
     # updated_at: datetime
 

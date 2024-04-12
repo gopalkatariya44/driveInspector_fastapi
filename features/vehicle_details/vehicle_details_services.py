@@ -12,9 +12,9 @@ class VehicleDetailsServices:
     """
 
     @staticmethod
-    async def get_list(page: int = 1, limit: int = 10):
+    async def get_list(user_id: UUID, page: int = 1, limit: int = 10):
         try:
-            vehicle_details_list = await (VehicleDetailsModel.find()
+            vehicle_details_list = await (VehicleDetailsModel.find(VehicleDetailsModel.user_id == user_id)
                                           # .skip(page).limit(limit)
                                           .to_list())
             return vehicle_details_list

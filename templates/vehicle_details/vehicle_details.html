@@ -1,0 +1,124 @@
+{% extends "core/base.html" %}
+{% block title %}Vehicle Details{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+{% include 'core/navbar.html' %}
+  <div class="d-flex justify-content-center">
+    <div style="width: 700px">
+
+    <table class="table table-striped">
+      <tbody>
+
+          <tr>
+            <th scope="row">reg_no</th>
+            <td>
+                {{vehicle_details['reg_no']}}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">conf</th>
+            <td>
+                {{vehicle_details['conf']}}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">created_at</th>
+            <td id="created_at">
+                {{vehicle_details['created_at']}}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Pollution Under Control</th>
+            <td>
+                {% if vehicle_details['puc'] == True%}
+                Valid
+                {% else %}
+                Expire
+                {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Insurance Policy</th>
+            <td>
+                {% if vehicle_details['insurance'] == True%}
+                Valid
+                {% else %}
+                Expire
+                {% endif %}
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    <img id="vehicle-image" src="{{vehicle_details['img_url']}}" alt="Example Image" width="800px" style="display: none">
+    <div style="height: 500px; width: 800px;">
+        <canvas id="myCanvas"></canvas>
+    </div>
+    </div>
+  </div>
+<br>
+<br>
+<br>
+
+<script>
+    var canvas = document.getElementById('myCanvas');
+    var ctx = canvas.getContext('2d');
+
+    var img = new Image();
+    img.src = "{{vehicle_details['img_url']}}";
+
+    img.onload = function() {
+
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    ctx.drawImage(img, 0, 0);
+
+    // Coordinates of the bounding box (x1, y1, x2, y2)
+    const cord = "{{vehicle_details['xyxy']}}";
+
+    // Extract the numeric parts from the string
+    const numericPart = cord.replace(/[^\d.,]/g, '');
+
+    // Split the numeric string by comma and convert to array of numbers
+    const cordArray = numericPart.split(',').map(Number);
+        console.log(cordArray)
+
+      var x1 = Math.round(cordArray[0]);
+      var y1 = Math.round(cordArray[1]);
+      var x2 = Math.round(cordArray[2]);
+      var y2 = Math.round(cordArray[3]);
+
+      // Draw the bounding box
+      ctx.strokeStyle = 'red'; // Set bounding box color
+      ctx.lineWidth = 8; // Set bounding box line width
+      ctx.rect(x1, y1, x2 - x1, y2 - y1); // Draw the bounding box
+    ctx.stroke();
+    };
+</script>
+<script>
+    // Function to convert UTC time to local time
+function convertUTCToLocal(utcTimeString) {
+    // Create a Date object from the UTC time string
+    var utcDate = new Date(utcTimeString);
+
+    // Convert the UTC time to local time
+    var localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+
+    // Format the local date to desired format
+    var options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+    var formattedDate = localDate.toLocaleString('en-US', options);
+
+    // Return the formatted local date
+    return formattedDate;
+}
+
+// Example UTC time string
+const utcTimeStr = "{{vehicle_details['created_at']}}";
+
+// Convert UTC time to local time and display it
+document.getElementById("created_at").innerHTML = convertUTCToLocal(utcTimeStr);
+</script>
+{% endblock %}

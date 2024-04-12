@@ -1,144 +1,89 @@
-import logging
-from typing import Annotated
+from fastapi import Depends, HTTPException, APIRouter, Request, Response
 
-import beanie
-import pymongo
-from fastapi import APIRouter, HTTPException, status, Body, Depends, Response
-from fastapi.security import OAuth2PasswordRequestForm
-from jose import jwt
-from pydantic import ValidationError
+from starlette import status
+from fastapi.responses import HTMLResponse
+from starlette.responses import RedirectResponse
 
-from core.config import settings
-from core.security import create_access_token, create_refresh_token, get_current_user
-
-from features.users.user_schemas import (CreateUserRequest, Token, TokenPayload,
-                                         LoginUserRequest, DeleteUserRequest, CreateTokenBlackList)
+from core.security import get_current_user, create_access_token, create_refresh_token
+from features import templates
+from features.users.user_schemas import CreateUserRequest, CreateTokenBlackList
 from features.users.user_services import UserService
 
 router = APIRouter(
     prefix='/user',
-    tags=['User']
+    tags=['Auth'],
+    responses={
+        status.HTTP_401_UNAUTHORIZED: {
+            'user': 'Not authorized'
+        }
+    }
 )
 
 
-@router.post('/create', status_code=status.HTTP_201_CREATED)
-async def create_user(user: CreateUserRequest):
+@router.get('/login', response_class=HTMLResponse)
+async def auth_page(request: Request):
+    user = await get_current_user(request)
+    if user is not None:
+        return RedirectResponse(url='/', status_code=status.HTTP_302_FOUND)
+    return templates.TemplateResponse('user/login.html', {'request': request})
+
+
+@router.post('/login', response_class=HTMLResponse)
+async def login(request: Request, response: Response):
     try:
-        data = await UserService.create_user(user)
-        # print(f"User Created: {data}")
-        logging.info(f"User Created: {data}")
-        return data
-    except (pymongo.errors.DuplicateKeyError, beanie.exceptions.RevisionIdWasChanged):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User with this username or email already exist."
-        )
+        form = await request.form()
+        user = await UserService.authenticate(email=form.get('email'), password=form.get('password'))
 
-
-@router.post("/login_dict", response_model=Token)
-async def login_for_access_token(response: Response, data: LoginUserRequest):
-    # try:
-    user = await UserService.authenticate(email=data.email, password=data.password)
-    if user == "email_not_exist":
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="User with this email not exist."
-        )
-    elif user == "incorrect_password":
-        print("incorrect_password")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect password."
-        )
-    tokens = {
-        'access_token': create_access_token(user.user_id),
-        'refresh_token': create_refresh_token(user.user_id),
-        'token_type': 'bearer'
-        }
-    response.set_cookie(key="access_token", value=tokens['access_token'], httponly=True)
-    response.set_cookie(key="refresh_token", value=tokens['refresh_token'], httponly=True)
-
-    print(f"access_token: {tokens['access_token']}")
-    print(f"refresh_token: {tokens['refresh_token']}")
-
-    return tokens
-    # except Exception as e:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_400_BAD_REQUEST,
-    #         detail="Somthing went wrong"
-    #     )
-
-
-@router.post("/logout")
-async def logout(token: CreateTokenBlackList, user: dict = Depends(get_current_user)):
-    try:
-        data = await UserService.add_token_to_black_list(token)
-        # print(f"User Logout: {data}")
-        logging.info(f"User Logout: {data}")
-        return {"message": "Logout successful"}
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Something went wrong"
-        )
-
-
-@router.post('/refresh', summary="Refresh token", response_model=Token)
-async def refresh_token(refresh_token: str = Body(...)):
-    try:
-        payload = jwt.decode(refresh_token, settings.REFRESH_SECRET_KEY, algorithms=settings.ALGORITHM)
-        token_data = TokenPayload(**payload)
-    except(jwt.JWTError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Invalid token",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    user = await UserService.get_user_by_id(token_data.sub)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not find user",
-        )
-    tokens = {
-        'access_token': create_access_token(user.user_id),
-        'refresh_token': create_refresh_token(user.user_id)
-    }
-    print(f"access_token: {tokens['access_token']}")
-    print(f"refresh_token: {tokens['refresh_token']}")
-    return tokens
-
-
-@router.delete("/delete")
-async def delete_user(data: DeleteUserRequest, user: dict = Depends(get_current_user)):
-    try:
-        await UserService.delete_user(data.user_id)
-        print(f"User Deleted: {data}")
-        return {"message": "User deleted successful"}
-    except Exception as e:
-        print(e)
-
-
-@router.post("/login")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    try:
-        user = await UserService.authenticate(email=form_data.username, password=form_data.password)
         if not user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Incorrect email or password"
-            )
-        tokens = {
-            'access_token': create_access_token(user.user_id),
-            'refresh_token': create_refresh_token(user.user_id),
-            'token_type': 'bearer'
-        }
-        print(f"access_token: {tokens['access_token']}")
-        print(f"refresh_token: {tokens['refresh_token']}")
-        # create access amd refresh token
-        return tokens
+            msg = 'Incorrect Username or Password'
+            return templates.TemplateResponse('user/login.html', {'request': request, 'msg': msg})
+
+        redirect_response = RedirectResponse(url='/', status_code=status.HTTP_302_FOUND)
+        redirect_response.set_cookie(key="access_token", value=create_access_token(user.user_id))
+        redirect_response.set_cookie(key="refresh_token", value=create_refresh_token(user.user_id))
+
+        return redirect_response
+    except HTTPException:
+        msg = 'Unknown Error'
+        return templates.TemplateResponse('user/login.html', {'request': request, 'msg': msg})
+
+
+@router.get('/register', response_class=HTMLResponse)
+async def register_page(request: Request):
+    user = await get_current_user(request)
+    if user is not None:
+        return RedirectResponse(url='/', status_code=status.HTTP_302_FOUND)
+    return templates.TemplateResponse('user/register.html', {'request': request})
+
+
+@router.post('/register')
+async def create_new_user(request: Request):
+    form = await request.form()
+    user = CreateUserRequest(
+        email=form.get('email'),
+        password=form.get('password')
+    )
+    try:
+        await UserService.create_user(user)
+        msg = 'User successfully created'
+        response = templates.TemplateResponse('user/login.html', {'request': request, 'msg': msg})
+        return response
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Somthing went wrong"
-        )
+        msg = 'This username or email already exist.'
+        if user is not None:
+            return templates.TemplateResponse('user/register.html', {'request': request, 'msg': msg})
+
+
+@router.get('/logout', response_class=HTMLResponse)
+async def logout(request: Request):
+    msg = 'Logout Successful'
+
+    token = request.cookies.get('access_token')
+    user = await get_current_user(request)
+    data = CreateTokenBlackList(token=token, user_id=user.user_id)
+    await UserService.add_token_to_black_list(data)
+
+    response = templates.TemplateResponse('user/login.html', {'request': request, 'msg': msg})
+    response.delete_cookie(key='access_token')
+    response.delete_cookie(key='refresh_token')
+    return response

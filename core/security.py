@@ -18,32 +18,38 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/v1/user/login")
 now = datetime.utcnow()
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserModel:
-    # token = request.cookies.get('access_token')
+# token: str = Depends(oauth2_scheme)
+async def get_current_user(request: Request):
     try:
+        token = request.cookies.get('access_token')
+        print(token)
+        if token is None:
+            return None
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=settings.ALGORITHM)
         token_data = TokenPayload(**payload)
         # check the token is inside a blacklist or not
         black_list_token = await TokenBlackListModel.find_one(TokenBlackListModel.token == token)
         if datetime.fromtimestamp(token_data.exp) < datetime.now() or black_list_token:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token expired",
-                headers={"WWW-Authenticate": "Bearer"}
-            )
+            return None
+            # raise HTTPException(
+            #     status_code=status.HTTP_401_UNAUTHORIZED,
+            #     detail="Token expired",
+            #     headers={"WWW-Authenticate": "Bearer"}
+            # )
+        user = await UserService.get_user_by_id(token_data.sub)
+        if not user:
+            return None
+            # raise HTTPException(
+            #     status_code=status.HTTP_403_FORBIDDEN,
+            #     detail="Could not find user",
+            # )
+        return user
     except(jwt.JWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate user credentials",
             headers={"WWW-Authenticate": "Bearer"}
         )
-    user = await UserService.get_user_by_id(token_data.sub)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Could not find user",
-        )
-    return user
 
 
 def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> str:

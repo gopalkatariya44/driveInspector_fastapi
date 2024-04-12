@@ -1,0 +1,77 @@
+{% extends "core/base.html" %}
+{% block title %}Register{% endblock %}
+{% block head %}
+{{ super() }}
+
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+    <div class="col-md-5">
+<!--    <p class="text-center" style="font-size: 30px">Welcome to</p>-->
+<!--    <p class="text-center" style="font-size: 30px; color: dodgerblue">Drive Inspector</p>-->
+    <div class="row justify-content-center">
+        <img  src="/static/logo/di-logo-zip-file/png/logo-no-background.png" height="100px" alt="">
+    </div>
+        <br>
+        <br>
+    <div class="card">
+        <div class="card-header">
+            Register
+        </div>
+        <div class="card-body">
+            {% if msg %}
+            <div class="alert alert-danger">
+                {{ msg }}
+            </div>
+            {% endif %}
+            <form method="POST" onsubmit="return validateForm()">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="password" id="password" required>
+                </div>
+                <div class="form-group">
+                    <label>Verify Password</label>
+                    <input type="password" class="form-control" name="password2" id="password2" required>
+                    <div id="password-mismatch" style="color: red; display: none;">Passwords do not match</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+        <div class="card-footer text-muted">
+            <a href="/user/login">Already have an account ?</a>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<script>
+    function validateForm() {
+            var password = document.getElementById("password").value;
+            var password2 = document.getElementById("password2").value;
+            var mismatchDiv = document.getElementById("password-mismatch");
+
+            if (password !== password2) {
+                mismatchDiv.style.display = "block"; // Show warning message
+                return false; // Prevent form submission
+            } else {
+                mismatchDiv.style.display = "none"; // Hide warning message
+                return true; // Allow form submission
+            }
+        }
+        // Event listeners for password fields to dynamically check for password mismatch
+        var passwordInput = document.getElementById("password");
+        var password2Input = document.getElementById("password2");
+        function mismatchDivNone() {
+            var mismatchDiv = document.getElementById("password-mismatch");
+            mismatchDiv.style.display = "none";
+        }
+        passwordInput.addEventListener("input", mismatchDivNone);
+        password2Input.addEventListener("input", mismatchDivNone);
+</script>
+{% endblock %}
