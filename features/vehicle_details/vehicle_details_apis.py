@@ -57,6 +57,7 @@ async def vehicle_list(id: str, request: Request):
     user_id = ObjectId(id)
     vehicle_details = dict(await VehicleDetailsServices.get_one(user_id))
     vehicle_details['img_url'] = vehicle_details['img_url'].replace("../driveinspector_fastapi", "")
+    print(vehicle_details)
     return templates.TemplateResponse(
         'vehicle_details/vehicle_details.html',
         {
