@@ -11,8 +11,11 @@ class VehicleDetailsModel(Document):
     cord: list
     xyxy: list
     conf: float
-    puc: bool
-    insurance: bool
+    insurance_from: datetime
+    insurance_upto: datetime
+    puc_from: datetime
+    puc_upto: datetime
+    soft_delete: bool = Field(default=False)
 
     user_id: UUID
 

@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional
 from uuid import uuid4, UUID
 from datetime import datetime
@@ -6,10 +7,17 @@ from beanie import Document, Indexed, before_event, Insert, Replace
 from pydantic import Field, EmailStr
 
 
+class UserRole(str, Enum):
+    user = "user"
+    admin = "admin"
+
+
 class UserModel(Document):
     user_id: UUID = Field(default_factory=uuid4, unique=True)
     email: Indexed(EmailStr, unique=True)
-    hashed_password: str
+    password: str
+    role: UserRole = Field(default=UserRole.admin)
+
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

@@ -1,5 +1,5 @@
 from bson import ObjectId
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Request, status, Form
 from starlette.responses import FileResponse, HTMLResponse, RedirectResponse
 
 from core.config import settings
@@ -19,7 +19,7 @@ async def vehicle_list(page: int = 1, limit: int = 100):
 
 
 @router.get('/', response_class=HTMLResponse)
-async def vehicle_list(request: Request, page: int = 1, limit: int = 100):
+async def vehicle_list(request: Request, page: int = 1, limit: int = 100, target_timezone: str = 'Asia/Kolkata'):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
@@ -30,30 +30,17 @@ async def vehicle_list(request: Request, page: int = 1, limit: int = 100):
             "request": request,
             'vehicle_details_list': vehicle_details_list,
             'user_id': user.user_id,
-            'ai_service_url': settings.AI_SERVICE_URL
-        }
-    )
-
-
-@router.get("/get_image", response_class=HTMLResponse)
-async def getfile(request: Request, file_path: str):
-    global img
-    img = file_path
-    return templates.TemplateResponse(
-        'vehicle_details/image.html',
-        {
-            'request': request,
-            'image_path': file_path
+            'ai_service_url': settings.AI_SERVICE_URL,
+            "target_timezone": target_timezone
         }
     )
 
 
 @router.get('/details/{id}', response_class=HTMLResponse)
-async def vehicle_list(id: str, request: Request):
+async def vehicle_list(id: str, request: Request, target_timezone: str = 'Asia/Kolkata'):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
-    global img
     user_id = ObjectId(id)
     vehicle_details = dict(await VehicleDetailsServices.get_one(user_id))
     vehicle_details['img_url'] = vehicle_details['img_url'].replace("../driveinspector_fastapi", "")
@@ -62,6 +49,45 @@ async def vehicle_list(id: str, request: Request):
         'vehicle_details/vehicle_details.html',
         {
             'request': request,
-            'vehicle_details': vehicle_details
+            'vehicle_details': vehicle_details,
+            "target_timezone": target_timezone
         }
     )
+
+
+@router.get('/edit/{id}', response_class=HTMLResponse)
+async def auth_page(id: str, request: Request):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
+    user_id = ObjectId(id)
+    vehicle_details = dict(await VehicleDetailsServices.get_one(user_id))
+    vehicle_details['img_url'] = vehicle_details['img_url'].replace("../driveinspector_fastapi", "")
+    return templates.TemplateResponse('vehicle_details/update_vehicle_details.html',
+                                      {'request': request, 'vehicle_details': vehicle_details})
+
+
+@router.post('/update/{id}', response_class=HTMLResponse)
+async def auth_page(id: str, request: Request, reg_no: str = Form(...)):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
+    id = ObjectId(id)
+    vehicle_details = dict(await VehicleDetailsServices.get_one(id))
+    vehicle_details['reg_no'] = reg_no
+    await VehicleDetailsServices.update(id, vehicle_details)
+    return RedirectResponse(url=f'/details/{id}', status_code=status.HTTP_302_FOUND)
+
+
+@router.get('/delete/{id}', response_class=HTMLResponse)
+async def delete(id: str, request: Request):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
+    vehicle_details_id = ObjectId(id)
+    await VehicleDetailsServices.delete(vehicle_details_id)
+    return RedirectResponse(url='/', status_code=status.HTTP_302_FOUND)
+
+
+
+

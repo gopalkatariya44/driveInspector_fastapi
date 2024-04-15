@@ -5,94 +5,112 @@
 {% endblock %}
 {% block content %}
 {% include 'core/navbar.html' %}
-  <div class="d-flex justify-content-center">
-    <div style="width: 700px">
-
-    <table class="table table-striped">
-      <tbody>
-
+<div class="container pb-5">
+    <a href="/"> Home </a>/
+    <a href="/details/{{vehicle_details['id']}}"> Details </a>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <table class="table table-striped">
+        <tbody>
           <tr>
             <th scope="row">Reg No.</th>
             <td>
-                {{vehicle_details['reg_no']}}
+              {{vehicle_details['reg_no']}}
             </td>
           </tr>
           <tr>
             <th scope="row">Corp Number Plate</th>
             <td>
-                <div style="height: 80px; width: 200px">
-                    <canvas id="croppedImageCanvas"></canvas>
-                </div>
+              <div style="height: 80px; width: 200px">
+                <canvas id="croppedImageCanvas"></canvas>
+              </div>
             </td>
           </tr>
           <tr>
             <th scope="row">Confidence</th>
             <td>
-                {{vehicle_details['conf']}}
+              {{vehicle_details['conf']}}
             </td>
           </tr>
           <tr>
             <th scope="row">Detected At</th>
             <td id="created_at">
-                {{vehicle_details['created_at']}}
+              {{ vehicle_details['created_at'] | convert_timezone(target_timezone) }}
             </td>
           </tr>
           <tr>
             <th scope="row">Pollution Under Control</th>
             <td>
-                {% if vehicle_details['puc'] == True%}
-                Valid
-                {% else %}
-                Expire
-                {% endif %}
+              {{vehicle_details['puc_from'] | convert_timezone_date(target_timezone)}}
+                to
+              {{vehicle_details['puc_upto'] | convert_timezone_date(target_timezone)}}
+              {% if vehicle_details['puc_upto']|is_date_expired(target_timezone) %}
+                <p style="color: green">Valid</p>
+              {% else %}
+                <p style="color: red">Expired</p>
+              {% endif %}
             </td>
           </tr>
           <tr>
             <th scope="row">Insurance Policy</th>
             <td>
-                {% if vehicle_details['insurance'] == True%}
-                Valid
-                {% else %}
-                Expire
-                {% endif %}
+              {{vehicle_details['insurance_from'] | convert_timezone_date(target_timezone)}}
+                to
+              {{vehicle_details['insurance_upto'] | convert_timezone_date(target_timezone)}}
+              {% if vehicle_details['insurance_upto']|is_date_expired(target_timezone) %}
+                <p style="color: green">Valid</p>
+              {% else %}
+                <p style="color: red">Expired</p>
+              {% endif %}
             </td>
           </tr>
-      </tbody>
-    </table>
-
-<!--    <img id="vehicle-image" src="{{vehicle_details['img_url']}}" alt="Example Image" width="800px" style="display: none">-->
-    <div style="height: 500px; width: 800px;">
-        <canvas id="myCanvas"></canvas>
+        </tbody>
+      </table>
+      <a href="/delete/{{vehicle_details['id']}}">
+        <button type="button" class="btn btn-danger">Delete</button>
+      </a>
+      &nbsp;&nbsp;&nbsp;
+      <a href="/edit/{{vehicle_details['id']}}">
+        <button type="button" class="btn btn-info">Edit</button>
+      </a>
     </div>
+    <div class="col-6">
+      <div style=" width: 650px;">
+        <canvas id="myCanvas"></canvas>
+      </div>
     </div>
   </div>
-<br>
-<br>
-<br>
+  <div class="d-flex justify-content-center">
+  </div>
+  <br>
+  <br>
+  <br>
 
-<script>
+  <script>
     var canvas = document.getElementById('myCanvas');
     var ctx = canvas.getContext('2d');
 
     var img = new Image();
     img.src = "{{vehicle_details['img_url']}}";
 
-    img.onload = function() {
+    img.onload = function () {
 
-    canvas.width = img.width;
-    canvas.height = img.height;
+      canvas.width = img.width;
+      canvas.height = img.height;
 
-    ctx.drawImage(img, 0, 0);
+      ctx.drawImage(img, 0, 0);
 
-    // Coordinates of the bounding box (x1, y1, x2, y2)
-    const cord = "{{vehicle_details['xyxy']}}";
+      // Coordinates of the bounding box (x1, y1, x2, y2)
+      const cord = "{{vehicle_details['xyxy']}}";
 
-    // Extract the numeric parts from the string
-    const numericPart = cord.replace(/[^\d.,]/g, '');
+      // Extract the numeric parts from the string
+      const numericPart = cord.replace(/[^\d.,]/g, '');
 
-    // Split the numeric string by comma and convert to array of numbers
-    const cordArray = numericPart.split(',').map(Number);
-        console.log(cordArray)
+      // Split the numeric string by comma and convert to array of numbers
+      const cordArray = numericPart.split(',').map(Number);
+      console.log(cordArray)
 
       var x1 = Math.round(cordArray[0]);
       var y1 = Math.round(cordArray[1]);
@@ -103,59 +121,35 @@
       ctx.strokeStyle = 'red'; // Set bounding box color
       ctx.lineWidth = 8; // Set bounding box line width
       ctx.rect(x1, y1, x2 - x1, y2 - y1); // Draw the bounding box
-    ctx.stroke();
+      ctx.stroke();
     };
-</script>
-<script>
-    // Function to convert UTC time to local time
-function convertUTCToLocal(utcTimeString) {
-    // Create a Date object from the UTC time string
-    var utcDate = new Date(utcTimeString);
+  </script>
+  <script>
+    // Function to load and display the cropped image
+    var img1 = new Image();
+    var canvas1 = document.getElementById("croppedImageCanvas");
+    var ctx1 = canvas1.getContext("2d");
+    var imgUrl1 = "{{vehicle_details['img_url']}}";
+    var xyxy1 = {{ vehicle_details['xyxy']}}; // Ensure this is formatted as a JavaScript array
 
-    // Convert the UTC time to local time
-    var localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+    // Load the image
+    img1.onload = function () {
+      // Calculate the coordinates for cropping
+      var x1 = xyxy1[0];
+      var y1 = xyxy1[1];
+      var x2 = xyxy1[2];
+      var y2 = xyxy1[3];
+      var width = x2 - x1;
+      var height = y2 - y1;
 
-    // Format the local date to desired format
-    var options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-    var formattedDate = localDate.toLocaleString('en-US', options);
+      // Set canvas width and height
+      canvas1.width = width;
+      canvas1.height = height;
 
-    // Return the formatted local date
-    return formattedDate;
-}
-
-// Example UTC time string
-const utcTimeStr = "{{vehicle_details['created_at']}}";
-
-// Convert UTC time to local time and display it
-document.getElementById("created_at").innerHTML = convertUTCToLocal(utcTimeStr);
-</script>
-<script>
-// Function to load and display the cropped image
-var img1 = new Image();
-var canvas1 = document.getElementById("croppedImageCanvas");
-var ctx1 = canvas1.getContext("2d");
-var imgUrl1 = "{{vehicle_details['img_url']}}";
-var xyxy1 = {{vehicle_details['xyxy']}}; // Ensure this is formatted as a JavaScript array
-
-// Load the image
-img1.onload = function() {
-  // Calculate the coordinates for cropping
-  var x1 = xyxy1[0];
-  var y1 = xyxy1[1];
-  var x2 = xyxy1[2];
-  var y2 = xyxy1[3];
-  var width = x2 - x1;
-  var height = y2 - y1;
-
-  // Set canvas width and height
-  canvas1.width = width;
-  canvas1.height = height;
-
-  // Draw the cropped portion of the image onto the canvas
-  ctx1.drawImage(img1, x1, y1, width, height, 0, 0, width, height);
-};
-
-// Set the image source to the provided URL
-img1.src = imgUrl1;
-</script>
-{% endblock %}
+      // Draw the cropped portion of the image onto the canvas
+      ctx1.drawImage(img1, x1, y1, width, height, 0, 0, width, height);
+    };
+    // Set the image source to the provided URL
+    img1.src = imgUrl1;
+  </script>
+  {% endblock %}

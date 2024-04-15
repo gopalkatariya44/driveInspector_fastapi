@@ -1,21 +1,21 @@
 {% extends "core/base.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}Vehicle Details{% endblock %}
 {% block head %}
 {{ super() }}
-
 {% endblock %}
 {% block content %}
+{% include 'core/navbar.html' %}
+<div class="container pb-5">
+    <a href="/"> Home </a>/
+    <a href="/details/{{vehicle_details['id']}}"> Details </a>/
+    <a href="/edit/{{vehicle_details['id']}}"> Edit </a>
+</div>
 <div class="container">
     <div class="row justify-content-center align-items-center">
         <div class="col-md-5">
-            <div class="row justify-content-center">
-                <img src="/static/logo/di-logo-zip-file/png/logo-no-background.png" height="100px" alt="">
-            </div>
-            <br>
-            <br>
             <div class="card">
                 <div class="card-header">
-                    Login
+                    Update Details
                 </div>
                 <div class="card-body">
                     {% if msg %}
@@ -29,20 +29,14 @@
                     </div>
                     {% endif %}
                     {% endif %}
-                    <form method="POST" action="/user/login">
+                    <form method="post" action="/update/{{vehicle_details['id']}}">
                         <div class="form-group">
-                            <label>Username</label>
-                            <input type="text" class="form-control" name="email" required>
+                            <label>Reg Number</label>
+                            <input value="{{vehicle_details['reg_no']}}" type="text"
+                                   class="form-control" name="reg_no" required>
                         </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" class="form-control" name="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
                     </form>
-                </div>
-                <div class="card-footer text-muted">
-                    <a href="/user/register">Register ?</a>
                 </div>
             </div>
         </div>

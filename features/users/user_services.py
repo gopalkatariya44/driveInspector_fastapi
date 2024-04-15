@@ -15,7 +15,7 @@ class UserService:
     async def create_user(user: CreateUserRequest):
         user_in = UserModel(
             email=user.email,
-            hashed_password=pwd_context.hash(user.password)
+            password=pwd_context.hash(user.password)
         )
         await user_in.save()
         return user_in
@@ -34,7 +34,7 @@ class UserService:
         user = await UserService.get_user_by_email(email=email)
         if not user:
             return False
-        if not security.verify_password(password=password, hashed_password=user.hashed_password):
+        if not security.verify_password(password=password, hashed_password=user.password):
             return False
         return user
 

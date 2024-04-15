@@ -9,8 +9,10 @@ class BaseVehicleDetailsRequest(BaseModel):
     img_url: str
     cord: list
     conf: float
-    puc: bool
-    insurance: bool
+    insurance_from: datetime
+    insurance_upto: datetime
+    puc_from: datetime
+    puc_upto: datetime
 
 
 class VehicleDetailsResponse(BaseVehicleDetailsRequest):

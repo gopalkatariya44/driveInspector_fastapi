@@ -22,7 +22,6 @@ now = datetime.utcnow()
 async def get_current_user(request: Request):
     try:
         token = request.cookies.get('access_token')
-        print(token)
         if token is None:
             return None
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=settings.ALGORITHM)
@@ -31,18 +30,9 @@ async def get_current_user(request: Request):
         black_list_token = await TokenBlackListModel.find_one(TokenBlackListModel.token == token)
         if datetime.fromtimestamp(token_data.exp) < datetime.now() or black_list_token:
             return None
-            # raise HTTPException(
-            #     status_code=status.HTTP_401_UNAUTHORIZED,
-            #     detail="Token expired",
-            #     headers={"WWW-Authenticate": "Bearer"}
-            # )
         user = await UserService.get_user_by_id(token_data.sub)
         if not user:
             return None
-            # raise HTTPException(
-            #     status_code=status.HTTP_403_FORBIDDEN,
-            #     detail="Could not find user",
-            # )
         return user
     except(jwt.JWTError, ValidationError):
         raise HTTPException(

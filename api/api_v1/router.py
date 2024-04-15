@@ -9,3 +9,5 @@ api_v1_router = APIRouter()
 # Auth APIs
 api_v1_router.include_router(user_apis.router)
 api_v1_router.include_router(vehicle_details_apis.router)
+
+from common import filters
