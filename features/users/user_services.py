@@ -7,7 +7,7 @@ from core import security
 from features.users.user_models import UserModel, TokenBlackListModel
 from features.users.user_schemas import CreateUserRequest, CreateTokenBlackList
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["scrypt"], deprecated="auto")
 
 
 class UserService:
@@ -34,7 +34,7 @@ class UserService:
         user = await UserService.get_user_by_email(email=email)
         if not user:
             return False
-        if not security.verify_password(password=password, hashed_password=user.password):
+        if not pwd_context.verify(password, user.password):
             return False
         return user
 

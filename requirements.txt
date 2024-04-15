@@ -12,7 +12,7 @@ starlette==0.36.3
 # auth
 python-jose[cryptography]
 pydantic[email]
-passlib[bcrypt]
+passlib[scrypt]
 
 # .env
 python-dotenv==1.0.1
