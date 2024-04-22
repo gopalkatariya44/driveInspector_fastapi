@@ -21,10 +21,7 @@ async def camera_feed(request: Request, page: int = 1, limit: int = 100, target_
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
-
     camera_feed_list = await CameraFeedServices.get_list(user.user_id, page, limit)
-    print(type(camera_feed_list))
-
     return templates.TemplateResponse(
         'home.html', {"request": request,
                       'camera_feed_list': camera_feed_list,

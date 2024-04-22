@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 import logging
 
+from starlette.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
 
 from api.api_v1.router import api_v1_router
@@ -29,6 +30,12 @@ logging.basicConfig(
 )
 
 app.mount('/static', StaticFiles(directory='static'), name='static')
+
+
+@app.exception_handler(404)
+async def custom_404_handler(_, __):
+    return RedirectResponse("/")
+
 
 app.include_router(api_v1_router)
 

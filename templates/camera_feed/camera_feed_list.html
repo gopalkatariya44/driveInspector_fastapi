@@ -26,7 +26,7 @@
 
                         <td>{{ camera_feed.created_at | convert_timezone(target_timezone) }}</td>
                         <td>
-                        <video width="60" src="{{camera_feed.media_url}}" autoplay></video>
+                        <video width="100px" src="{{camera_feed.media_url}}" autoplay></video>
                         </td>
                         <td>
                             <button onclick="window.location.href='/detection-ocr/{{camera_feed.camera_feed_id}}'" type="button"
