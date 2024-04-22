@@ -31,6 +31,8 @@ async def auth_page(request: Request):
 @router.post('/login', response_class=HTMLResponse)
 async def login(request: Request, response: Response):
     try:
+        response.delete_cookie(key='access_token')
+        response.delete_cookie(key='refresh_token')
         form = await request.form()
         user = await UserService.authenticate(email=form.get('email'), password=form.get('password'))
 
