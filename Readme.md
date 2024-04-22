@@ -1,9 +1,4 @@
-clone repo
-```commandline
-git clone https://github.com/gopalkatariya44/driveinspector_fastapi.git
-```
-
-create virtual env
+create virtual env with `python3.10.14`
 ```commandline
 python -m venv venv
 ```

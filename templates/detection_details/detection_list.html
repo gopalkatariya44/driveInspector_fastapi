@@ -1,0 +1,130 @@
+{% extends "core/base.html" %}
+{% block title %}Details | Drive Inspector{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+{% include 'core/navbar.html' %}
+
+<div class="container">
+    <a href="/"> Home </a>/
+    <a href="/detection-ocr/{{camera_feed_id}}"> Detection Results </a>
+    <div class="container">
+        <div class="row justify-content-between">
+            <div class="col-md-6 d-flex justify-content-end align-items-center">
+                <button type="button" class="btn btn-success" id="start-service">Start</button>
+                &nbsp;
+                &nbsp;
+                <button type="button" class="btn btn-danger" id="stop-service">Stop</button>
+            </div>
+            <div class="col-md-6 d-flex justify-content-start align-items-center">
+                <div class="dot" id="statusDot"></div>
+                &nbsp;
+                <p id="statusMessage" class="mb-0"></p>
+            </div>
+        </div>
+    </div>
+
+    <br>
+    <div class="card text-center">
+        <div class="card-header">
+            Detected Numberplate
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Reg No.</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Confidence</th>
+<!--                        <th scope="col">PUC | Insurance</th>-->
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vehicle in detection_ocr_list %}
+                    <tr class="pointer">
+                        <td>{{loop.index}}</td>
+                        <td>{{vehicle.reg_no}}</td>
+                        <td>{{ vehicle.created_at | convert_timezone(target_timezone) }}</td>
+                        <td>{{vehicle.conf}}</td>
+
+                        <td>
+                            <!--                            <button onclick="window.location.href='/v1/detection_details/get_image?file_path={{vehicle.img_url}}'"-->
+                            <!--                                type="button" class="btn btn-info">Image-->
+                            <!--                            </button>-->
+                            <button onclick="window.location.href='/detection-ocr/details/{{vehicle.id}}'" type="button"
+                                class="btn btn-info">Vehicle Info
+                            </button>
+                            <button onclick="window.location.href='/detection-ocr/delete/{{vehicle.id}}'" type="button"
+                                class="btn btn-danger">Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if detection_ocr_list|length == 0 %}
+            <p class="card-text">No vehicle detection found!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+
+const start_service = document.getElementById('start-service');
+const stop_service = document.getElementById('stop-service');
+
+
+start_service.addEventListener('click', function () {
+    fetch('{{ai_service_url}}/v1/drive-inspector/start/{{user_id}}/{{camera_feed_id}}/{{video_path}}')
+        .then(function (result) {
+            console.log(result);
+        })
+        .catch(function (err) {
+            console.error(err);
+        });
+    updateDotColor();
+});
+stop_service.addEventListener('click', function () {
+    fetch('{{ai_service_url}}/v1/drive-inspector/stop')
+        .then(function (result) {
+            console.log(result);
+        })
+        .catch(function (err) {
+            console.error(err);
+        });
+    updateDotColor();
+});
+
+async function updateDotColor() {
+    try {
+        const response = await fetch('{{ai_service_url}}/v1/drive-inspector/status');
+        const data = await response.json();
+        const statusDot = document.getElementById('statusDot');
+        const statusMessage = document.getElementById('statusMessage');
+        if (data.status === true) {
+            statusDot.classList.remove('red');
+            statusDot.classList.add('green');
+            statusMessage.textContent = "Service is running..";
+        } else {
+            statusDot.classList.remove('green');
+            statusDot.classList.add('red');
+            statusMessage.textContent = "Service is stopped";
+        }
+    } catch (error) {
+        console.error('Error fetching API:', error);
+        const statusDot = document.getElementById('statusDot');
+        statusDot.classList.remove('green');
+        statusDot.classList.add('red');
+        const statusMessage = document.getElementById('statusMessage');
+        statusMessage.textContent = "Service is not responding";
+    }
+}
+
+// Call the function initially and then every few seconds
+updateDotColor();
+setInterval(updateDotColor, 5000); // Update every 5 seconds
+</script>
+{% endblock %}

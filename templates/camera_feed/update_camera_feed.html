@@ -1,0 +1,32 @@
+{% extends "core/base.html" %}
+{% block title %}Update | Drive Inspector{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+{% include 'core/navbar.html' %}
+<div class="container pb-5">
+    <a href="/"> Home </a>/
+    <a href="/edit/{{camera_feed_details['id']}}"> Edit </a>
+</div>
+<div class="container">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">
+                    Update Details
+                </div>
+                <div class="card-body">
+                    <form method="post" action="/update/{{camera_feed_details['id']}}" enctype="multipart/form-data">
+                          <div class="form-group">
+                            <label>Choose file</label>
+                            <input type="file" class="form-control-file" name="video_file">
+                          </div>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

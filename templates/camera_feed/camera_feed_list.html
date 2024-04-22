@@ -1,0 +1,51 @@
+<div class="container">
+    <div class="d-flex flex-row-reverse">
+    <button onclick="window.location.href='/add'" type="button"
+            class="btn btn-danger">Add Feed
+    </button>
+    </div>
+    <br>
+    <div class="card text-center">
+        <div class="card-header">
+            Feed List
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Created At</th>
+                        <th scope="col">Preview</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for camera_feed in camera_feed_list %}
+                    <tr class="pointer">
+                        <td>{{loop.index}}</td>
+
+                        <td>{{ camera_feed.created_at | convert_timezone(target_timezone) }}</td>
+                        <td>
+                        <video width="60" src="{{camera_feed.media_url}}" autoplay></video>
+                        </td>
+                        <td>
+                            <button onclick="window.location.href='/detection-ocr/{{camera_feed.camera_feed_id}}'" type="button"
+                                class="btn btn-info">Detections
+                            </button>
+                            <button onclick="window.location.href='/edit/{{camera_feed.id}}'" type="button"
+                                class="btn btn-success">Update
+                            </button>
+                            <button onclick="window.location.href='/delete/{{camera_feed.id}}'" type="button"
+                                class="btn btn-danger">Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if camera_feed_list|length == 0 %}
+            <p class="card-text">No Feed found!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>

@@ -5,8 +5,10 @@ from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from core.config import settings
+from features.camera_feed.camera_feed_model import CameraFeedModel
 from features.users.user_models import UserModel, TokenBlackListModel
 from features.vehicle_details.vehicle_details_model import VehicleDetailsModel
+from features.detection_ocr.detection_ocr_model import DetectionOCRModel
 
 
 @asynccontextmanager
@@ -17,8 +19,10 @@ async def app_lifespan(app: FastAPI):
         database=mongo_client[settings.DB_NAME],
         document_models=[
             UserModel,
+            CameraFeedModel,
             TokenBlackListModel,
-            VehicleDetailsModel
+            VehicleDetailsModel,
+            DetectionOCRModel
         ]
     )
     print("[START]: Initialize application services")

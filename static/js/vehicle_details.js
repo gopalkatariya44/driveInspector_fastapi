@@ -16,7 +16,7 @@ function convertUTCToLocal(utcTimeString) {
 }
 
 // Example UTC time string
-const utcTimeStr = "{{vehicle_details['created_at']}}";
+const utcTimeStr = "{{detection_details['created_at']}}";
 
 // Convert UTC time to local time and display it
 document.getElementById("created_at").innerHTML = convertUTCToLocal(utcTimeStr);

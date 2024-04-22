@@ -20,6 +20,3 @@ python-decouple==3.8
 
 # image
 python-multipart==0.0.9
-
-# ultralytics
-ultralytics==8.1.15

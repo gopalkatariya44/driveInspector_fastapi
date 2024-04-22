@@ -7,8 +7,9 @@
 {% include 'core/navbar.html' %}
 <div class="container pb-5">
     <a href="/"> Home </a>/
-    <a href="/details/{{vehicle_details['id']}}"> Details </a>/
-    <a href="/edit/{{vehicle_details['id']}}"> Edit </a>
+    <a href="/detection-ocr/{{detection_details['camera_feed_id']}}"> Detection Results </a>/
+    <a href="/detection-ocr/details/{{detection_details['id']}}"> Details </a>/
+    <a href="/detection-ocr/edit/{{detection_details['id']}}"> Edit </a>
 </div>
 <div class="container">
     <div class="row justify-content-center align-items-center">
@@ -18,21 +19,10 @@
                     Update Details
                 </div>
                 <div class="card-body">
-                    {% if msg %}
-                    {% if msg == 'Logout Successful' or msg == 'User successfully created' %}
-                    <div class="alert alert-success" role="alert">
-                        {{msg}}
-                    </div>
-                    {% else %}
-                    <div class="alert alert-danger">
-                        {{ msg }}
-                    </div>
-                    {% endif %}
-                    {% endif %}
-                    <form method="post" action="/update/{{vehicle_details['id']}}">
+                    <form method="post" action="/detection-ocr/update/{{detection_details['id']}}">
                         <div class="form-group">
                             <label>Reg Number</label>
-                            <input value="{{vehicle_details['reg_no']}}" type="text"
+                            <input value="{{detection_details['reg_no']}}" type="text"
                                    class="form-control" name="reg_no" required>
                         </div>
                         <button type="submit" class="btn btn-primary">Update</button>

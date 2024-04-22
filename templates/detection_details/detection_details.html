@@ -7,7 +7,8 @@
 {% include 'core/navbar.html' %}
 <div class="container pb-5">
     <a href="/"> Home </a>/
-    <a href="/details/{{vehicle_details['id']}}"> Details </a>
+    <a href="/detection-ocr/{{detection_details['camera_feed_id']}}"> Detection Results </a>/
+    <a href="/detection-ocr/details/{{detection_details['id']}}"> Details </a>
 </div>
 <div class="container">
   <div class="row">
@@ -17,7 +18,7 @@
           <tr>
             <th scope="row">Reg No.</th>
             <td>
-              {{vehicle_details['reg_no']}}
+              {{detection_details['reg_no']}}
             </td>
           </tr>
           <tr>
@@ -31,22 +32,22 @@
           <tr>
             <th scope="row">Confidence</th>
             <td>
-              {{vehicle_details['conf']}}
+              {{detection_details['conf']}}
             </td>
           </tr>
           <tr>
             <th scope="row">Detected At</th>
             <td id="created_at">
-              {{ vehicle_details['created_at'] | convert_timezone(target_timezone) }}
+              {{ detection_details['created_at'] | convert_timezone(target_timezone) }}
             </td>
           </tr>
           <tr>
             <th scope="row">Pollution Under Control</th>
             <td>
-              {{vehicle_details['puc_from'] | convert_timezone_date(target_timezone)}}
+              {{vehicle_details['puc_details']['puc_from'] | convert_timezone_date(target_timezone)}}
                 to
-              {{vehicle_details['puc_upto'] | convert_timezone_date(target_timezone)}}
-              {% if vehicle_details['puc_upto']|is_date_expired(target_timezone) %}
+              {{vehicle_details['puc_details']['puc_upto'] | convert_timezone_date(target_timezone)}}
+              {% if vehicle_details['puc_details']['puc_upto']|is_date_expired(target_timezone) %}
                 <p style="color: green">Valid &#9989;</p>
               {% else %}
                 <p style="color: red">Expired &#10060;</p>
@@ -56,10 +57,10 @@
           <tr>
             <th scope="row">Insurance Policy</th>
             <td>
-              {{vehicle_details['insurance_from'] | convert_timezone_date(target_timezone)}}
+              {{vehicle_details['insurance_details']['insurance_from'] | convert_timezone_date(target_timezone)}}
                 to
-              {{vehicle_details['insurance_upto'] | convert_timezone_date(target_timezone)}}
-              {% if vehicle_details['insurance_upto']|is_date_expired(target_timezone) %}
+              {{vehicle_details['insurance_details']['insurance_upto'] | convert_timezone_date(target_timezone)}}
+              {% if vehicle_details['insurance_details']['insurance_upto']|is_date_expired(target_timezone) %}
                 <p style="color: green">Valid &#9989;</p>
               {% else %}
                 <p style="color: red">Expired &#10060;</p>
@@ -68,11 +69,11 @@
           </tr>
         </tbody>
       </table>
-      <a href="/delete/{{vehicle_details['id']}}">
+      <a href="/detection-ocr/delete/{{detection_details['id']}}">
         <button type="button" class="btn btn-danger">Delete</button>
       </a>
       &nbsp;&nbsp;&nbsp;
-      <a href="/edit/{{vehicle_details['id']}}">
+      <a href="/detection-ocr/edit/{{detection_details['id']}}">
         <button type="button" class="btn btn-info">Edit</button>
       </a>
     </div>
@@ -93,7 +94,7 @@
     var ctx = canvas.getContext('2d');
 
     var img = new Image();
-    img.src = "{{vehicle_details['img_url']}}";
+    img.src = "{{detection_details['img_url']}}";
 
     img.onload = function () {
 
@@ -103,7 +104,7 @@
       ctx.drawImage(img, 0, 0);
 
       // Coordinates of the bounding box (x1, y1, x2, y2)
-      const cord = "{{vehicle_details['xyxy']}}";
+      const cord = "{{detection_details['xyxy']}}";
 
       // Extract the numeric parts from the string
       const numericPart = cord.replace(/[^\d.,]/g, '');
@@ -129,8 +130,8 @@
     var img1 = new Image();
     var canvas1 = document.getElementById("croppedImageCanvas");
     var ctx1 = canvas1.getContext("2d");
-    var imgUrl1 = "{{vehicle_details['img_url']}}";
-    var xyxy1 = {{ vehicle_details['xyxy']}}; // Ensure this is formatted as a JavaScript array
+    var imgUrl1 = "{{detection_details['img_url']}}";
+    var xyxy1 = {{ detection_details['xyxy']}}; // Ensure this is formatted as a JavaScript array
 
     // Load the image
     img1.onload = function () {
