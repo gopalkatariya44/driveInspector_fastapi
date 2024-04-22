@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% block title %}Vehicle Details{% endblock %}
+{% block title %}Details | Drive Inspector{% endblock %}
 {% block head %}
 {{ super() }}
 {% endblock %}
@@ -47,9 +47,9 @@
                 to
               {{vehicle_details['puc_upto'] | convert_timezone_date(target_timezone)}}
               {% if vehicle_details['puc_upto']|is_date_expired(target_timezone) %}
-                <p style="color: green">Valid</p>
+                <p style="color: green">Valid &#9989;</p>
               {% else %}
-                <p style="color: red">Expired</p>
+                <p style="color: red">Expired &#10060;</p>
               {% endif %}
             </td>
           </tr>
@@ -60,9 +60,9 @@
                 to
               {{vehicle_details['insurance_upto'] | convert_timezone_date(target_timezone)}}
               {% if vehicle_details['insurance_upto']|is_date_expired(target_timezone) %}
-                <p style="color: green">Valid</p>
+                <p style="color: green">Valid &#9989;</p>
               {% else %}
-                <p style="color: red">Expired</p>
+                <p style="color: red">Expired &#10060;</p>
               {% endif %}
             </td>
           </tr>

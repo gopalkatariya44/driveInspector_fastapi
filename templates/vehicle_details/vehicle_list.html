@@ -11,6 +11,7 @@
                         <th scope="col">Reg No.</th>
                         <th scope="col">Time</th>
                         <th scope="col">Confidence</th>
+                        <th scope="col">PUC | Insurance</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -21,6 +22,19 @@
                         <td>{{vehicle.reg_no}}</td>
                         <td>{{ vehicle.created_at | convert_timezone(target_timezone) }}</td>
                         <td>{{vehicle.conf}}</td>
+                        <td>
+                            <div class="row justify-content-center">
+                          {% if vehicle.puc_upto|is_date_expired(target_timezone) %}
+                            <p style="color: green">&#9989;</p>
+                          {% else %}
+                            <p style="color: red">&#10060;</p>
+                          {% endif %}&nbsp;&nbsp;{% if vehicle.insurance_upto|is_date_expired(target_timezone) %}
+                            <p style="color: green">&#9989;</p>
+                          {% else %}
+                            <p style="color: red">&#10060;</p>
+                          {% endif %}
+                                </div>
+                        </td>
                         <td>
                             <!--                            <button onclick="window.location.href='/v1/vehicle_details/get_image?file_path={{vehicle.img_url}}'"-->
                             <!--                                type="button" class="btn btn-info">Image-->
