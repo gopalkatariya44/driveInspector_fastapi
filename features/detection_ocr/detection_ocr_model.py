@@ -1,11 +1,12 @@
 from datetime import datetime
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from beanie import before_event, Insert, Replace, Document
 from pydantic import Field
 
 
 class DetectionOCRModel(Document):
+    detection_ocr_id: UUID = Field(default_factory=uuid4, unique=True)
     reg_no: str
     img_url: str
     cord: list

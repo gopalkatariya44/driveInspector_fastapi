@@ -31,8 +31,8 @@ async def auth_page(request: Request):
 @router.post('/login', response_class=HTMLResponse)
 async def login(request: Request, response: Response):
     try:
-        response.delete_cookie(key='access_token')
-        response.delete_cookie(key='refresh_token')
+        # response.delete_cookie(key='access_token')
+        # response.delete_cookie(key='refresh_token')
         form = await request.form()
         user = await UserService.authenticate(email=form.get('email'), password=form.get('password'))
 
@@ -85,6 +85,8 @@ async def logout(request: Request):
     await UserService.add_token_to_black_list(data)
 
     response = templates.TemplateResponse('user/login.html', {'request': request, 'msg': msg})
-    response.delete_cookie(key='access_token')
-    response.delete_cookie(key='refresh_token')
+    # response.delete_cookie(key='access_token')
+    # response.delete_cookie(key='refresh_token')
+    for cookie in request.cookies:
+        response.delete_cookie(cookie)
     return response

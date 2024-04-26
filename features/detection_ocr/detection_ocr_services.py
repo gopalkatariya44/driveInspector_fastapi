@@ -30,7 +30,7 @@ class DetectionOCRServices:
     @staticmethod
     async def get_one(id: UUID):
         try:
-            detection_details = await DetectionOCRModel.find_one(DetectionOCRModel.user_id == id)
+            detection_details = await DetectionOCRModel.find_one(DetectionOCRModel.detection_ocr_id == id)
             return detection_details
         except Exception as e:
             raise HTTPException(
@@ -40,7 +40,7 @@ class DetectionOCRServices:
 
     @staticmethod
     async def update(id: UUID, data):
-        detection_details = await DetectionOCRModel.find_one(DetectionOCRModel.id == id)
+        detection_details = await DetectionOCRModel.find_one(DetectionOCRModel.detection_ocr_id == id)
 
         await detection_details.update({"$set": data})
         await detection_details.save()
@@ -48,7 +48,7 @@ class DetectionOCRServices:
 
     @staticmethod
     async def delete(id: UUID):
-        detection_details = await DetectionOCRModel.find_one(DetectionOCRModel.id == id)
+        detection_details = await DetectionOCRModel.find_one(DetectionOCRModel.detection_ocr_id == id)
         if detection_details:
             # await detection_details.delete()
             await detection_details.update({"$set": {"soft_delete": True}})

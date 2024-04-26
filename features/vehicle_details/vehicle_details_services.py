@@ -1,3 +1,4 @@
+import os
 from urllib import request
 from uuid import UUID
 from datetime import datetime
@@ -6,17 +7,20 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
+
+import pdfkit
 # import pdfkit
 
 from bson import ObjectId
 from fastapi import HTTPException, status
 from fastapi.templating import Jinja2Templates
 
+from common.pdf_html import pdf_html
 from features import templates
 from features.vehicle_details.vehicle_details_model import VehicleDetailsModel
 
+from features import templates
 
-templates = Jinja2Templates(directory="templates")
 
 class VehicleDetailsServices:
     """
@@ -83,7 +87,6 @@ class VehicleDetailsServices:
     @staticmethod
     async def generate_challan_pdf(reg_no: str):
         vehicle_details = await VehicleDetailsModel.find_one(VehicleDetailsModel.reg_no == reg_no)
-        print("====================>", vehicle_details)
         email_id = vehicle_details.email_id
         insurance_upto = vehicle_details.insurance_details['insurance_upto']
         puc_upto = vehicle_details.puc_details['puc_upto']
@@ -106,8 +109,9 @@ class VehicleDetailsServices:
 
         subject = ""
         body = ""
-
-        if not insurance_bool and puc_bool:
+        tmp = None
+        if not insurance_bool and not puc_bool:
+            print("not insurance_bool and puc_bool")
             subject = "Urgent Action Required: Invalid PUC and Insurance - Challan Generated"
             body = """
             I hope this message finds you well.
@@ -135,13 +139,14 @@ class VehicleDetailsServices:
                                  "section": "196",
                                  "fine_amt": "2000"}
 
-            return templates.TemplateResponse('challan.html',
-                                              {'request': request,
-                                               'data': data,
-                                               'puc_offence': puc_offence,
-                                               'insurance_offence': insurance_offence})
+            tmp = templates.TemplateResponse('pdf.html',
+                                             {'request': request,
+                                              'data': data,
+                                              'puc_offence': puc_offence,
+                                              'insurance_offence': insurance_offence})
 
         if (insurance_bool is True and puc_bool is False) or (insurance_bool is False and puc_bool is True):
+            print("(insurance_bool is True and puc_bool is False) or (insurance_bool is False and puc_bool is True)")
             subject = "Action Required: Invalid PUC or Insurance - Challan Generated"
             body = """I hope this message finds you well.
             
@@ -162,21 +167,21 @@ class VehicleDetailsServices:
                                      "section": "196",
                                      "fine_amt": "2000"}
 
-                return templates.TemplateResponse('challan.html',
-                                                  {'request': request,
-                                                   'data': data,
-                                                   'puc_offence': None,
-                                                   'insurance_offence': insurance_offence})
+                tmp = templates.TemplateResponse('pdf.html',
+                                                 {'request': request,
+                                                  'data': data,
+                                                  'puc_offence': None,
+                                                  'insurance_offence': insurance_offence})
             else:
                 puc_offence = {"offence_desc": "INVALID PUC DOCUMENT",
                                "section": "190(2)",
                                "fine_amt": "1000"}
 
-                return templates.TemplateResponse('challan.html',
-                                                  {'request': request,
-                                                   'data': data,
-                                                   'puc_offence': puc_offence,
-                                                   'insurance_offence': None})
+                tmp = templates.TemplateResponse('pdf.html',
+                                                 {'request': request,
+                                                  'data': data,
+                                                  'puc_offence': puc_offence,
+                                                  'insurance_offence': None})
 
         if insurance_bool and puc_bool:
             subject = "Confirmation: Valid PUC and Insurance"
@@ -201,19 +206,23 @@ class VehicleDetailsServices:
         # Attach body
         message.attach(MIMEText(body, "plain"))
 
-        # os.mkdir(f"../driveinspector_fastapi/static/user/{user_id}/challan")
+        os.makedirs(f"static/pdf", exist_ok=True)
         # Attach PDF
-        if ((not insurance_bool and not puc_bool) or (insurance_bool is True and puc_bool is False) or
-                insurance_bool is False and puc_bool is True):
-            # pdfkit.from_file('templates/challan.html',
-            #                  'static/pdf/challan.pdf',
-            #                  options={"enable-local-file-access": ""})
-
-            with open("static/pdf/challan.pdf", "rb") as attachment:
-                part = MIMEApplication(attachment.read(), _subtype="pdf")
-
-                part.add_header('Content-Disposition', 'attachment', filename="challan.pdf")
-                message.attach(part)
+        # if ((not insurance_bool and not puc_bool) or (insurance_bool is True and puc_bool is False) or
+        #         insurance_bool is False and puc_bool is True):
+        # if not insurance_bool or not puc_bool:
+        #     # pdf_bytes = await tmp.body()
+        #     # pdfkit.from_string(pdf_html.format(reg_no=reg_no,name=vehicle_details.owner_name),
+        #     #                  'static/pdf/challan.pdf',
+        #     #                  options={"enable-local-file-access": ""})
+        #     pdfkit.from_string(pdf_html.format(reg_no=reg_no, name=vehicle_details.owner_name),
+        #                        'static/pdf/challan.pdf', options={"enable-local-file-access": ""})
+        #
+        #     with open("static/pdf/challan.pdf", "rb") as attachment:
+        #         part = MIMEApplication(attachment.read(), _subtype="pdf")
+        #
+        #         part.add_header('Content-Disposition', 'attachment', filename="challan.pdf")
+        #         message.attach(part)
 
         try:
             smtpObj = smtplib.SMTP('smtp-mail.outlook.com', 587)

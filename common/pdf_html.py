@@ -1,3 +1,4 @@
+pdf_html = """
 <!DOCTYPE html>
 <html>
   <head>
@@ -46,12 +47,12 @@
       <tbody>
         <tr>
           <th style="width: 200px;">Name</th>
-          <td style="text-align: left">{{data.name}}</td>
+          <td style="text-align: left">{name}</td>
         </tr>
         <tr>
           <th>Address</th>
           <td style="text-align: left">
-            {{data.address}}
+            {address}
           </td>
         </tr>
       </tbody>
@@ -63,57 +64,27 @@
       <tbody>
         <tr>
           <th>Vehicle Reg. No.</th>
-          <td>{{data.reg_no}}</td>
+          <td>{reg_no}</td>
           <th>Vehicle Maker/Model</th>
-          <td>{{data.vehicle_maker}} {{data.vehicle_model}}</td>
+          <td>{vehicle_maker} {vehicle_model}</td>
         </tr>
         <tr>
           <th>Challan No.</th>
           <td>948392843</td>
           <th>Vehicle Type</th>
-          <td>{{data.vehicle_type}}</td>
+          <td>{vehicle_type}</td>
         </tr>
         <tr>
           <th>Date of Violation</th>
-          <td>{{data.date_of_violation}}</td>
+          <td>{date_of_violation}</td>
           <th>Mobile No.</th>
-          <td>{{data.mobile_number}}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Third Table: Offence Details -->
-    <h2>Offence Details</h2>
-    <table>
-      <thead>
-        <tr>
-<!--          <th>S.No.</th>-->
-          <th>Offence Description</th>
-          <th>Applicable Section</th>
-          <th>Fine Amount</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-<!--          <td>1</td>-->
-          {% if puc_offence != None %}
-          <td>{{puc_offence.offence_desc}}</td>
-          <td>{{puc_offence.section}}</td>
-          <td>{{puc_offence.fine_amt}}</td>
-          {% endif %}
-        </tr>
-        <tr>
-<!--          <td>2</td>-->
-          {% if insurance_offence != None %}
-          <td>{{insurance_offence.offence_desc}}</td>
-          <td>{{insurance_offence.section}}</td>
-          <td>{{insurance_offence.fine_amt}}</td>
-          {% endif %}
+          <td>{mobile_number}</td>
         </tr>
       </tbody>
     </table>
 	<div style="width: 100%; display: flex; justify-content: center">
-        <img src="result.jpg" style="width: 600px; height: 400px;">
+        <img src={img_url} style="width: 600px; height: 400px;">
     </div>
   </body>
 </html>
+"""

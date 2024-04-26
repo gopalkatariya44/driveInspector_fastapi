@@ -8,7 +8,7 @@
 <div class="container pb-5">
     <a href="/"> Home </a>/
     <a href="/detection-ocr/{{detection_details['camera_feed_id']}}"> Detection Results </a>/
-    <a href="/detection-ocr/details/{{detection_details['id']}}"> Details </a>
+    <a href="/detection-ocr/details/{{detection_details['detection_ocr_id']}}"> Details </a>
 </div>
 <div class="container">
   <div class="row">
@@ -69,11 +69,11 @@
           </tr>
         </tbody>
       </table>
-      <a href="/detection-ocr/delete/{{detection_details['id']}}">
+      <a href="/detection-ocr/delete/{{detection_details['detection_ocr_id']}}/{{detection_details['camera_feed_id']}}">
         <button type="button" class="btn btn-danger">Delete</button>
       </a>
       &nbsp;&nbsp;&nbsp;
-      <a href="/detection-ocr/edit/{{detection_details['id']}}">
+      <a href="/detection-ocr/edit/{{detection_details['detection_ocr_id']}}">
         <button type="button" class="btn btn-info">Edit</button>
       </a>
     </div>

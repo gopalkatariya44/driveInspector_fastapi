@@ -15,5 +15,6 @@ class BaseDetectionOCRRequest(BaseModel):
 
 
 class DetectionOCRResponse(BaseDetectionOCRRequest):
+    detection_ocr_id: UUID
     created_at: datetime
     updated_at: datetime
