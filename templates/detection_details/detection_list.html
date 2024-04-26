@@ -78,7 +78,7 @@ const stop_service = document.getElementById('stop-service');
 
 
 start_service.addEventListener('click', function () {
-    fetch('{{ai_service_url}}/v1/drive-inspector/start/{{user_id}}/{{camera_feed_id}}/{{video_path}}')
+    fetch('{{ai_service_url}}/v1/drive-inspector/start?user_id={{user_id}}&camera_feed_id={{camera_feed_id}}')
         .then(function (result) {
             console.log(result);
         })

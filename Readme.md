@@ -1,24 +1,25 @@
-create virtual env with `python3.10.14`
+- create virtual env with `python3.10.14`
 ```commandline
 python -m venv venv
 ```
 
-activate the venv
+- activate the venv
 
-install requirements.txt
+- install requirements.txt
 ```commandline
 pip install -r requirements.txt
 ```
 
-change .env file like mongo url and other details
+- change .env file like mongo url and other details
 
-run main.py file
+- run main.py file
 ```commandline
 python main.py
 ```
 
 go to http://localhost:8000
 
+- testing videos `static/demo/videos`
 
 ### DEMO
 <img src="static/demo/home.png">

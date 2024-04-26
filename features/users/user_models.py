@@ -52,7 +52,6 @@ class UserModel(Document):
 
 class TokenBlackListModel(Document):
     token: str
-    user_id: UUID
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Settings:

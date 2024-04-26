@@ -81,8 +81,7 @@ async def logout(request: Request):
     msg = 'Logout Successful'
 
     token = request.cookies.get('access_token')
-    user = await get_current_user(request)
-    data = CreateTokenBlackList(token=token, user_id=user.user_id)
+    data = CreateTokenBlackList(token=token)
     await UserService.add_token_to_black_list(data)
 
     response = templates.TemplateResponse('user/login.html', {'request': request, 'msg': msg})

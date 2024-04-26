@@ -40,4 +40,3 @@ class TokenPayload(BaseModel):
 
 class CreateTokenBlackList(BaseModel):
     token: str
-    user_id: UUID
