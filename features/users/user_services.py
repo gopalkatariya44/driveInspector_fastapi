@@ -22,10 +22,7 @@ class UserService:
 
     @staticmethod
     async def add_token_to_black_list(token: CreateTokenBlackList):
-        token_in = TokenBlackListModel(
-            token=token.token,
-            user_id=token.user_id
-        )
+        token_in = TokenBlackListModel(token=token.token)
         await token_in.insert()
         return token_in
 
