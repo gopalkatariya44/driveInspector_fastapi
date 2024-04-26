@@ -54,8 +54,11 @@
                             <!--                            <button onclick="window.location.href='/v1/detection_details/get_image?file_path={{vehicle.img_url}}'"-->
                             <!--                                type="button" class="btn btn-info">Image-->
                             <!--                            </button>-->
-                            <button onclick="window.location.href='/detection-ocr/details/{{vehicle.id}}'" type="button"
+                            <button onclick="window.location.href='/detection-ocr/details/{{vehicle.user_id}}'" type="button"
                                 class="btn btn-info">Vehicle Info
+                            </button>
+                            <button onclick="window.location.href='/detection-ocr/email/{{vehicle.user_id}}/{{vehicle.camera_feed_id}}'" type="button"
+                                class="btn btn-info">Send Email
                             </button>
                             <button onclick="window.location.href='/detection-ocr/delete/{{vehicle.id}}'" type="button"
                                 class="btn btn-danger">Delete

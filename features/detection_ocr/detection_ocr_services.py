@@ -28,9 +28,9 @@ class DetectionOCRServices:
             )
 
     @staticmethod
-    async def get_one(id: ObjectId):
+    async def get_one(id: UUID):
         try:
-            detection_details = await DetectionOCRModel.find_one(DetectionOCRModel.id == id)
+            detection_details = await DetectionOCRModel.find_one(DetectionOCRModel.user_id == id)
             return detection_details
         except Exception as e:
             raise HTTPException(

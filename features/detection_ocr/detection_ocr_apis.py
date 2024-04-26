@@ -28,7 +28,7 @@ async def detection_list(camera_feed_id: UUID, request: Request, page: int = 1, 
     if user is None:
         return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
     detection_ocr_list = await DetectionOCRServices.get_list(camera_feed_id, page, limit)
-    print(type(detection_ocr_list))
+    print(detection_ocr_list)
     return templates.TemplateResponse(
         'detection_details/detection_list.html',
         {"request": request,
@@ -41,12 +41,12 @@ async def detection_list(camera_feed_id: UUID, request: Request, page: int = 1, 
 
 
 @router.get('/details/{id}', response_class=HTMLResponse)
-async def detection_list(id: str, request: Request, target_timezone: str = 'Asia/Kolkata'):
+async def detection_list(id: UUID, request: Request, target_timezone: str = 'Asia/Kolkata'):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
-    user_id = ObjectId(id)
-    detection_details = dict(await DetectionOCRServices.get_one(user_id))
+    # user_id = ObjectId(id)
+    detection_details = dict(await DetectionOCRServices.get_one(id))
     detection_details['img_url'] = detection_details['img_url'].replace("../driveinspector_fastapi", "")
     vehicle_details = dict(await VehicleDetailsServices.get_by_regno(detection_details['reg_no']))
     print("-->", detection_details)
@@ -74,15 +74,26 @@ async def auth_page(id: str, request: Request):
 
 
 @router.post('/update/{id}', response_class=HTMLResponse)
-async def auth_page(id: str, request: Request, reg_no: str = Form(...)):
+async def auth_page(id: UUID, request: Request, reg_no: str = Form(...)):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
-    id = ObjectId(id)
     detection_details = dict(await DetectionOCRServices.get_one(id))
     detection_details['reg_no'] = reg_no
     await DetectionOCRServices.update(id, detection_details)
     return RedirectResponse(url=f'/detection-ocr/details/{id}', status_code=status.HTTP_302_FOUND)
+
+
+@router.get('/email/{user_id}/{camera_feed_id}', response_class=HTMLResponse)
+async def email(user_id: UUID, camera_feed_id: UUID, request: Request):
+    user = await get_current_user(request)
+    if user is None:
+        return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
+    detection_details = dict(await DetectionOCRServices.get_one(user_id))
+    vehicle_details = dict(await VehicleDetailsServices.get_by_regno(detection_details['reg_no']))
+
+    await VehicleDetailsServices.generate_challan_pdf(vehicle_details['reg_no'])
+    return RedirectResponse(url=f'/detection-ocr/{camera_feed_id}', status_code=status.HTTP_302_FOUND)
 
 
 @router.get('/delete/{id}', response_class=HTMLResponse)

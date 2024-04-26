@@ -110,8 +110,8 @@ class BaseVehicleDetailsRequest(BaseModel):
     verified_on: datetime
     dl_validation_required: bool
     condition_status: bool
-    vehicle_insurance_details: dict
-    vehicle_puc_details: dict
+    vehicle_insurance_details: BaseVehicleInsuranceDetailsRequest
+    vehicle_puc_details: BaseVehiclePUCDetailsRequest
 
 
 class VehicleDetailsResponse(BaseVehicleDetailsRequest):
