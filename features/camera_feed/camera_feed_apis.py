@@ -41,17 +41,21 @@ async def auth_page(request: Request):
 
 
 @router.post('/add', response_class=HTMLResponse)
-async def auth_page(request: Request, video_file: UploadFile = Form(...)):
+async def auth_page(request: Request, video_file: UploadFile = Form(...),
+                    rtsp_url: str = Form(...),
+                    media_type: int = Form(...)):
     user = await get_current_user(request)
     if user is None:
         return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
-    video_byte = await video_file.read()
-    folder_path = f"static/users/{user.user_id}/input"
-    video_path = f"static/users/{user.user_id}/input/{video_file.filename}"
+    video_path = rtsp_url
+    if media_type == 1:
+        video_byte = await video_file.read()
+        folder_path = f"static/users/{user.user_id}/input"
+        video_path = f"static/users/{user.user_id}/input/{video_file.filename}"
 
-    os.makedirs(folder_path, exist_ok=True)
-    with open(video_path, 'wb') as f:
-        f.write(video_byte)
+        os.makedirs(folder_path, exist_ok=True)
+        with open(video_path, 'wb') as f:
+            f.write(video_byte)
     await CameraFeedServices.add(user.user_id, video_path)
     return RedirectResponse(url='/', status_code=status.HTTP_302_FOUND)
 

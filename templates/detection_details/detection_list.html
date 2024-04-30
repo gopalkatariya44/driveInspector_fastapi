@@ -37,29 +37,37 @@
                         <th scope="col">Reg No.</th>
                         <th scope="col">Time</th>
                         <th scope="col">Confidence</th>
-<!--                        <th scope="col">PUC | Insurance</th>-->
+                        <th scope="col">PUC | Insurance</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for vehicle in detection_ocr_list %}
-                    <tr class="pointer">
+                    <tr class="pointer" onclick="window.location.href='/detection-ocr/details/{{vehicle.detection_ocr_id|byte_to_uuid}}'">
                         <td>{{loop.index}}</td>
                         <td>{{vehicle.reg_no}}</td>
                         <td>{{ vehicle.created_at | convert_timezone(target_timezone) }}</td>
                         <td>{{vehicle.conf}}</td>
-
                         <td>
-                            <!--                            <button onclick="window.location.href='/v1/detection_details/get_image?file_path={{vehicle.img_url}}'"-->
-                            <!--                                type="button" class="btn btn-info">Image-->
-                            <!--                            </button>-->
-                            <button onclick="window.location.href='/detection-ocr/details/{{vehicle.detection_ocr_id}}'" type="button"
-                                class="btn btn-info">Vehicle Info
-                            </button>
-                            <button onclick="window.location.href='/detection-ocr/email/{{vehicle.reg_no}}/{{vehicle.camera_feed_id}}'" type="button"
+                            <div class="row justify-content-center">
+                              {% if vehicle.puc_details.puc_upto|is_date_expired(target_timezone) %}
+                                <p style="color: green">&#9989;</p>
+                              {% else %}
+                                <p style="color: red">&#10060;</p>
+                              {% endif %}
+                                &nbsp;&nbsp;
+                             {% if vehicle.insurance_details.insurance_upto|is_date_expired(target_timezone) %}
+                                <p style="color: green">&#9989;</p>
+                              {% else %}
+                                <p style="color: red">&#10060;</p>
+                              {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <button onclick="window.location.href='/detection-ocr/email/{{vehicle.reg_no}}/{{vehicle.camera_feed_id}}'; event.stopPropagation();" type="button"
                                 class="btn btn-info">Send Email
                             </button>
-                            <button onclick="window.location.href='/detection-ocr/delete/{{vehicle.detection_ocr_id}}/{{vehicle.camera_feed_id}}'" type="button"
+                            <button onclick="window.location.href='/detection-ocr/delete/{{vehicle.detection_ocr_id|byte_to_uuid}}/{{vehicle.camera_feed_id}}'; event.stopPropagation();" type="button"
                                 class="btn btn-danger">Delete
                             </button>
                         </td>

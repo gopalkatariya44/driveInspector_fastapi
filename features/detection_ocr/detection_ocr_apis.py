@@ -28,7 +28,6 @@ async def detection_list(camera_feed_id: UUID, request: Request, page: int = 1, 
     if user is None:
         return RedirectResponse(url='/user/login', status_code=status.HTTP_302_FOUND)
     detection_ocr_list = await DetectionOCRServices.get_list(camera_feed_id, page, limit)
-    print(detection_ocr_list)
     return templates.TemplateResponse(
         'detection_details/detection_list.html',
         {"request": request,
@@ -49,7 +48,6 @@ async def detection_details(id: UUID, request: Request, target_timezone: str = '
     detection_details = dict(await DetectionOCRServices.get_one(id))
     detection_details['img_url'] = detection_details['img_url'].replace("../driveinspector_fastapi", "")
     vehicle_details = dict(await VehicleDetailsServices.get_by_regno(detection_details['reg_no']))
-    print("-->", detection_details)
     return templates.TemplateResponse(
         'detection_details/detection_details.html',
         {

@@ -1,6 +1,8 @@
+import uuid
 from datetime import datetime
 import pytz
 from features import templates
+from features.vehicle_details.vehicle_details_services import VehicleDetailsServices
 
 
 def convert_timezone(value, target_timezone):
@@ -28,7 +30,15 @@ def is_date_expired(value_str, target_timezone):
     return today_local < value_local.date()
 
 
+def byte_to_uuid(value):
+    try:
+        return uuid.UUID(bytes=value)
+    except ValueError:
+        return None
+
+
 # Add the custom filter to the Jinja2 environment
 templates.env.filters['convert_timezone'] = convert_timezone
 templates.env.filters['convert_timezone_date'] = convert_timezone_date
 templates.env.filters['is_date_expired'] = is_date_expired
+templates.env.filters['byte_to_uuid'] = byte_to_uuid

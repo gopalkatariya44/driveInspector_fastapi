@@ -26,16 +26,26 @@
 
                         <td>{{ camera_feed.created_at | convert_timezone(target_timezone) }}</td>
                         <td>
-                        <video width="100px" src="{{camera_feed.media_url}}" autoplay></video>
+                        <video data-toggle="modal" data-target="#exampleModalCenter" width="100px" src="{{camera_feed.media_url}}" autoplay loop></video>
+                        <!-- Modal -->
+                        <div class="modal fade bd-example-modal-lg" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                          <div style="width: inherit" class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content" style="width: inherit">
+                              <div style="width: inherit" class="modal-body">
+                                  <video style="width: inherit" src="{{camera_feed.media_url}}" controls loop></video>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                         </td>
                         <td>
-                            <button onclick="window.location.href='/detection-ocr/{{camera_feed.camera_feed_id}}'" type="button"
-                                class="btn btn-info">Detections
+                            <button class="btn btn-info" onclick="window.location.href='/detection-ocr/{{camera_feed.camera_feed_id}}'">
+                                Detection
                             </button>
-                            <button onclick="window.location.href='/edit/{{camera_feed.id}}'" type="button"
+                            <button onclick="window.location.href='/edit/{{camera_feed.id}}'; event.stopPropagation();" type="button"
                                 class="btn btn-success">Update
                             </button>
-                            <button onclick="window.location.href='/delete/{{camera_feed.id}}'" type="button"
+                            <button onclick="window.location.href='/delete/{{camera_feed.id}}'; event.stopPropagation();" type="button"
                                 class="btn btn-danger">Delete
                             </button>
                         </td>
@@ -49,3 +59,33 @@
         </div>
     </div>
 </div>
+
+<script>
+    function openDetectionOcrDetails(cameraFeedId) {
+    // Redirect to the detection OCR details page
+    window.location.href = '/detection-ocr/' + cameraFeedId;
+}
+
+function openUpdatePage(id) {
+    // Redirect to the update page
+    window.location.href = '/edit/' + id;
+}
+
+function openDeletePage(id) {
+    // Redirect to the delete page
+    window.location.href = '/delete/' + id;
+}
+
+// Open modal when video is clicked
+document.querySelectorAll('video').forEach(video => {
+    video.addEventListener('click', function() {
+        // Get the modal associated with this video
+        const modalId = this.dataset.target;
+        const modal = document.querySelector(modalId);
+
+        // Open the modal
+        $(modal).modal('show');
+    });
+});
+
+</script>
