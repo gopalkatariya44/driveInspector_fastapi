@@ -1,3 +1,22 @@
+# DriveInspector - Automated Vehicle Regulation System
+
+## Project Overview
+**DriveInspector** is an automated vehicle regulation system that enhances road safety through real-time vehicle number plate detection using computer vision and Optical Character Recognition (OCR). This system improves regulatory efficiency and contributes to safer roads.
+
+## Key Features
+- **Number Plate Detection:** Integrated YOLO for real-time detection of vehicle number plates.
+- **Optical Character Recognition (OCR):** Used PaddleOCR for text recognition from number plates.
+- **Backend:** Built with FastAPI, integrated with MongoDB for storing and managing vehicle data.
+
+## Technologies Used
+- **Computer Vision:** YOLO
+- **OCR:** PaddleOCR
+- **Backend Framework:** FastAPI
+- **Database:** MongoDB
+- **Programming Language:** Python
+
+## Installation
+
 - create virtual env with `python3.10.14`
 ```commandline
 python -m venv venv
